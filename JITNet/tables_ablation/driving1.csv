@@ -1,0 +1,8 @@
+,background,person,car_bus_truck,motorcycle_bicycle,Speed up,Samples,Updates
+JITNet 0.8,98.28,68.59,93.50,42.45,6.90,3437,26868
+JITNet 0.8 max updates 4,98.09,65.44,92.82,17.07,7.10,3606,14232
+JITNet 0.8 max updates 16,98.33,69.52,93.67,44.65,7.08,2913,44440
+JITNet 0.8 lr 0.001,97.86,60.01,91.98,2.73,6.48,3669,29029
+JITNet 0.8 lr 0.1,84.86,0.62,7.12,0.00,6.40,3717,29638
+JITNet 0.8 min stride 4,98.52,72.01,94.51,54.00,3.83,6415,49858
+JITNet 0.8 min stride 16,97.96,63.87,92.16,10.62,12.25,1810,14241

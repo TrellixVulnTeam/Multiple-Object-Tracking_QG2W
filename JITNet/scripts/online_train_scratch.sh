@@ -1,0 +1,14 @@
+CUDA_VISIBLE_DEVICES=$3 python src/online_scene_seg.py \
+    --train_data_path=/n/scanner/ravi/many_cam/jackson_hole/ \
+    --train_segments=jackson_hole_6-7.mp4,jackson_hole_6-8.mp4,jackson_hole_6-9.mp4,jackson_hole_6-10.mp4,jackson_hole_6-11.mp4 \
+    --train_dir=/tmp/test \
+    --detections_prefix=mask_rcnn_1 \
+    --batch_size=1 \
+    --learning_rate=0.001 \
+    --fine_classes=1 \
+    --filter_depth_multiplier=0.5 \
+    --inference_stride=1 \
+    --training_stride=$1 \
+    --background_weight=1 \
+    --max_frames=$2 \
+    --stats_path=/n/pana/scratch/ravi/JITNet/results/online_bg_scratch_jackson_hole_6_$1_$2.npy

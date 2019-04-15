@@ -1,0 +1,8 @@
+,background,person,Speed up,Samples,Updates
+JITNet 0.8,98.82,76.00,17.58,1222,7326
+JITNet 0.8 max updates 4,98.89,77.29,15.18,1546,5126
+JITNet 0.8 max updates 16,98.76,74.82,19.88,960,9993
+JITNet 0.8 lr 0.001,98.83,76.11,13.12,1717,11240
+JITNet 0.8 lr 0.1,95.84,2.66,6.43,3693,29492
+JITNet 0.8 min stride 4,98.83,76.26,13.63,1648,10464
+JITNet 0.8 min stride 16,98.80,75.81,22.63,891,5029
