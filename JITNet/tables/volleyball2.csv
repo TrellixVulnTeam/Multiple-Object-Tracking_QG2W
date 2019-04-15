@@ -1,0 +1,6 @@
+,background,person,Speed up,Samples,Updates
+_stride_25_frame_15000_thresh_0.90_lr_0.01,98.35,81.85,2.72,3537,13988
+_stride_8_frame_30000_thresh_0.8_lr_0.01,97.55,74.10,15.79,244,1680
+_stride_8_frame_30000_overfit,98.20,80.52,20.00,0,0
+_stride_16_frame_15000_pp,93.72,44.12,9.14,938,0
+_stride_32_frame_15000_pp,92.11,34.11,12.55,469,0

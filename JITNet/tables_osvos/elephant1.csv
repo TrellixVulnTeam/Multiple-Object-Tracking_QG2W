@@ -1,0 +1,10 @@
+,background,elephant,Speed up,Samples,Updates
+JITNet 0.9,99.15,91.28,23.27,59,131
+JITNet 0.8,99.03,90.16,23.56,60,102
+JITNet 0.7,98.90,88.82,23.38,61,104
+JITNet Offline Overfit,97.93,81.63,42.86,0,0
+JITNet Pretrain,98.61,86.81,42.86,0,0
+Flow Slow,98.84,87.85,1.20,451,0
+Flow Fast,98.12,80.20,1.20,225,0
+OSVOS,98.41,83.52,1.20,3600,0
+OSVOS static,98.30,82.37,1.20,3600,0

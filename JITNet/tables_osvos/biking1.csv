@@ -1,0 +1,10 @@
+,background,person,motorcycle_bicycle,Speed up,Samples,Updates
+JITNet 0.9,90.82,81.71,66.13,4.07,451,3608
+JITNet 0.8,89.92,79.99,61.37,5.84,307,2329
+JITNet 0.7,88.07,76.33,55.42,11.49,140,925
+JITNet Offline Overfit,88.98,78.63,58.14,42.86,0,0
+JITNet Pretrain,89.77,80.12,61.96,42.86,0,0
+Flow Slow,88.13,74.88,64.04,1.20,451,0
+Flow Fast,83.47,62.83,51.86,1.20,225,0
+OSVOS,89.11,70.00,0.00,1.20,3600,0
+OSVOS static,89.44,71.09,0.00,1.20,3600,0

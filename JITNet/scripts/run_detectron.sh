@@ -1,0 +1,2 @@
+CUDA_VISIBLE_DEVICES=$3 python3 Detectron.pytorch/tools/infer_video_stream.py --dataset coco --cfg=Detectron.pytorch/configs/baselines/e2e_mask_rcnn_X-152-32x8d-FPN-IN5k_1.44x_no_aug.yaml --load_detectron=./pretrained/model_large_final.pkl --input_video_path=$1 --output_path=$2
+#CUDA_VISIBLE_DEVICES=$3 python3 Detectron.pytorch/tools/infer_video_stream.py --dataset coco --cfg=Detectron.pytorch/configs/baselines/e2e_mask_rcnn_R-50-FPN_2x.yaml --load_detectron=./pretrained/model_small_final.pkl --input_video_path=$1 --output_path=$2

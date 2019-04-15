@@ -1,0 +1,9 @@
+,background,bird,Speed up,Samples,Updates
+JITNet 0.9,99.17,87.92,21.68,529,1673
+JITNet 0.8,99.01,85.66,24.21,474,762
+JITNet 0.7,98.99,85.29,24.50,473,626
+JITNet Offline Overfit,99.47,92.02,42.86,0,0
+JITNet Pretrain,98.59,79.91,42.86,0,0
+Flow Slow,98.68,79.99,1.20,3731,0
+Flow Fast,97.90,68.01,1.20,1866,0
+OSVOS,98.74,75.90,1.20,3600,0

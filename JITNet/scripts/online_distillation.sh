@@ -1,0 +1,22 @@
+CUDA_VISIBLE_DEVICES=$7 python src/online_scene_distillation.py \
+    --dataset_dir=/n/scanner/ravi/video_distillation/ \
+    --sequence=$1 \
+    --train_dir=/tmp/test \
+    --batch_size=1 \
+    --learning_rate=$6 \
+    --filter_depth_multiplier=0.5 \
+    --inference_stride=1 \
+    --training_stride=$2 \
+    --background_weight=5 \
+    --max_frames=$3 \
+    --stats_path=$5/$1_stride_$2_frame_$3_thresh_$4_lr_$6.npy \
+    --video_out_path=$5/$1_stride_$2_frame_$3_thresh_$4_lr_$6.avi \
+    --checkpoint_path=/n/pana/scratch/ravi/train/jitnet_v2_1x_0.5w_coco_pretrained \
+    --checkpoint_exclude_scopes=ressep/logits,ressep/background_decoder/decoder_conv1/ \
+    --adaptive_schedule=1 \
+    --accuracy_threshold=$4 \
+    --max_updates=16 \
+    --replay_samples=0 \
+    --sequence_limit=2 \
+    --focal_loss=0;
+ffmpeg -i $5/$1_stride_$2_frame_$3_thresh_$4_lr_$6.avi $5/$1_stride_$2_frame_$3_thresh_$4_$6.mp4

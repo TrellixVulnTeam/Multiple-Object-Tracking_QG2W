@@ -1,0 +1,8 @@
+,background,person,car_bus_truck,Speed up,Samples,Updates
+JITNet 0.9,99.09,74.62,92.86,4.17,3663,29143
+JITNet 0.8,98.86,68.09,91.21,6.52,2289,16670
+JITNet 0.7,98.66,62.42,89.79,10.32,1373,8660
+JITNet Offline Overfit,98.98,72.54,91.76,42.86,0,0
+JITNet Pretrain,98.67,66.08,88.96,42.86,0,0
+Flow Slow,99.00,72.32,91.93,1.20,3721,0
+Flow Fast,98.45,58.32,87.39,1.20,1861,0
