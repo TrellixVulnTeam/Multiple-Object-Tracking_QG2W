@@ -77,7 +77,9 @@ def check_iou_match(state, frame_boxes):
     return best_box_idx
 
 def visualize_predictions(video_path, tracks, output_folder):
-    images_folder = output_folder + "final_tracks"
+    images_folder = output_folder + "/final_tracks"
+    os.mkdir(images_folder)
+    
     s = VideoInputStream(video_path)
     frame_id = 0
 
@@ -86,12 +88,13 @@ def visualize_predictions(video_path, tracks, output_folder):
     for im in s:
         assert im is not None
         for tid, track in enumerate(tracks):
-            start_frame = tracks[start_frame]
-            if (frame_id >= start_frame):
+            start_frame = track['start_frame']
+            end_frame = track['end_frame']
+            if (frame_id >= start_frame and (end_frame is None or frame_id < end_frame)):
                 curr_box = track['track'][frame_id - start_frame]
                 [cx, cy] = curr_box['target_pos']
                 [w, h] = curr_box['target_sz']
-                cv2.rectangle(im, (cx-w/2, cy-h/2), (cx+w/2, cy+h/2), track_colors[tid], 3)
+                cv2.rectangle(im, (int(cx-w/2), int(cy-h/2)), (int(cx+w/2), int(cy+h/2)), track_colors[tid], 3)
                 img_path = images_folder + "/frame_" + str(frame_id).zfill(len(str(s.length))) + "_vis.png"
                 cv2.imwrite(img_path, im)
         print("Covered All Tracks for Frame: ", frame_id)
@@ -104,13 +107,21 @@ def visualize_predictions(video_path, tracks, output_folder):
     clip.write_videofile(output_folder + "final_tracks.mp4")
     return
 
-def make_json_serializable(elem):
-    elem['track'] = list(map(lambda x: {'target_pos': list(x['target_pos']), 'target_sz': list(x['target_sz'])}, elem['track']))
+def make_track_serializable(state):
+    new_state = {}
+    new_state['target_pos'] = list(map(lambda x: float(x), state['target_pos']))
+    new_state['target_sz'] = list(map(lambda x: float(x), state['target_sz']))
+    return new_state
+
+def make_serializable(elem):
+    elem['track'] = list(map(make_track_serializable, elem['track']))
     return elem
 
 def main():
     args = parse_args()
     detections = np.load(args.detections)[()]
+
+    os.mkdir(args.output_folder)
     
     print("Loading net...")
     net = SiamRPNvot()
@@ -120,7 +131,7 @@ def main():
     stream = VideoInputStream(args.video_path)
     frame_id = 0
 
-    # data: {tracks: [{active:T/F, track:[], start_frame:int}]}
+    # data: {tracks: [{active:T/F, track:[], start_frame:int, end_frame:int}]}
     data = {}
     data['tracks'] = []
 
@@ -154,20 +165,20 @@ def main():
             else:
                 # Otherwise, no matching boxes found
                 data['tracks'][tid]['active'] = False
+                data['tracks'][tid]['end_frame'] = frame_id
         
         # Start new tracks for remaining unmatched detections
         for box_id in range(len(frame_boxes)):
             if box_id not in matched_boxes:
                 new_pos, new_sz = np.array(frame_boxes[box_id][:2]), np.array(frame_boxes[box_id][2:])
                 new_state = SiamRPN_init(im, new_pos, new_sz, net)
-                data['tracks'].append({'active': True, 'track': [new_state], 'start_frame': frame_id})
+                data['tracks'].append({'active': True, 'track': [new_state], 'start_frame': frame_id, 'end_frame': None})
 
         frame_id += 1
 
     print("Output Phase")
-    os.mkdir(args.output_folder)
 
-    data['tracks'] = list(map(make_json_serializable, data['tracks']))
+    data['tracks'] = list(map(make_serializable, data['tracks']))
 
     with open(args.output_folder + '/final_predictions.txt', 'w') as outfile:  
         json.dump(data, outfile)
