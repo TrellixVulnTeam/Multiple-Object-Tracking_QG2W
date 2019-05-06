@@ -8,7 +8,6 @@ import cv2
 import torch
 import random
 import json
-import time
 from moviepy.editor import ImageSequenceClip
 
 sys.path.append(os.path.realpath('./code'))
@@ -45,17 +44,12 @@ def get_bbox_coords(frame_detections):
 
     return frame_boxes
 
-def check_iou_match(s_box, frame_boxes, matched_boxes):
+def check_iou_match(s_box, frame_boxes):
     best_iou = 0
     best_box_idx = None
 
-    print("TRACKED BOX: ", s_box)
     for idx, curr_box in enumerate(frame_boxes):
-        if (idx in matched_boxes):
-            continue
         curr_iou = bb_intersection_over_union(s_box, curr_box)
-        print("CURR BOX: ", curr_box)
-        print("CURR IOU: ", curr_iou)
 
         if ((curr_iou >= best_iou)):
             best_box_idx = idx
@@ -73,7 +67,6 @@ def visualize_predictions(video_path, tracks, output_folder):
     s = VideoInputStream(video_path)
     frame_id = 0
 
-    print("Tracks Length: ", len(tracks))
     track_colors = [random.sample(range(0,255), 3) for i in range(len(tracks))]
 
     for im in s:
@@ -118,11 +111,10 @@ def main():
     data = {}
     data['tracks'] = []
 
-    b_stream = time.time()
     for im in stream:
         print("Frame ID: ", frame_id)
         assert im is not None
-        # frame_boxes: [cx, cy, w, h] -> [x1, y1, x2, y2]
+        # frame_boxes: array of [cx, cy, w, h] for each detection in frame
         frame_boxes = get_bbox_coords(detections[frame_id])
         matched_boxes = []
 
@@ -133,75 +125,37 @@ def main():
                 # inactive track
                 continue
 
-            # Use SiamRPN's next predicted box for IOU match
-            old_state = track['state']
-            new_state = SiamRPN_track(old_state, im)
-            track['state'] = new_state
-
-            res = cxy_wh_2_rect(track['state']['target_pos'], track['state']['target_sz'])
-            res = [int(l) for l in res]
-            new_state_coords = [res[0], res[1], res[0]+res[2], res[1]+res[3]]
-            box_id = check_iou_match(new_state_coords, frame_boxes, matched_boxes)
+            track['state'] = SiamRPN_track(track['state'], im)
+            # TODO: Need to use states for IOU matches rather than previous detection
+            box_id = check_iou_match(track['track'][-1], frame_boxes)
             
             if box_id is not None:
                 # Matching detection box found
                 track['track'].append(frame_boxes[box_id])
-
-                # Update state with detected bbox coords
-                x1, y1, x2, y2 = frame_boxes[box_id]
-
-                # DEBUG: 
-                # detected_region = [x1, y1, x2, y1, x1, y2, x2, y2]
-                # cx, cy, w, h = get_axis_aligned_bbox(detected_region)
-                cx, cy = (x1+x2)/2, (y1+y2)/2
-                w, h = (x2-x1+1), (y2-y1+1)
-                track['state']['target_pos'] = np.array([cx, cy])
-                track['state']['target_sz'] = np.array([w, h])
                 
-                track['missing_streak'] = 0
                 matched_boxes.append(box_id)
             else:
                 # No matching boxes found
-                track['missing_streak'] += 1
-                if (track['missing_streak'] == config.max_missing_streak):
-                    # Consecutively no matching tracks found
-                    track['active'] = False
-                    track['end_frame'] = frame_id
-                else:
-                    # streak < max_missing_streak so use SiamRPN predicted coordinates
-                    # for now and hope that it'll match something next time to continue the track
-                    res = cxy_wh_2_rect(track['state']['target_pos'], track['state']['target_sz'])
-                    res = [int(l) for l in res]
-                    temporary_bbox_coords = [res[0], res[1], res[0]+res[2], res[1]+res[3]]
-                    # track['track'].append(temporary_bbox_coords)
+                track['active'] = False
+                track['end_frame'] = frame_id
 
-        # TODO: Replace with a single box and check what it's tracking (Ideally try to find one of the two foreground tracks)
         # Start new tracks for remaining unmatched detections
         for box_id in range(len(frame_boxes)):
             if box_id not in matched_boxes:
-                print("At an unmatched box with ID = 4")
                 x1, y1, x2, y2 = frame_boxes[box_id]
-                # DEBUG: 
-                detected_region = [x1, y1, x2, y1, x1, y2, x2, y2]
-                cx, cy, w, h = get_axis_aligned_bbox(detected_region)
-                # cx, cy = (x1+x2)/2, (y1+y2)/2
-                # w, h = (x2-x1+1), (y2-y1+1)
-                
-                print("Coordinates: ", x1, y1, x2, y2)
-
-                new_pos = np.array([cx, cy])
-                new_sz = np.array([w, h])
+                new_pos = np.array([(x2+x1)/2, (y2+y1)/2]).astype(int)
+                new_sz = np.array([(x2-x1+1), (y2-y1+1)]).astype(int)
 
                 new_state = SiamRPN_init(im, new_pos, new_sz, net)
-                data['tracks'].append({'active': True, 'state': new_state, 'track': [frame_boxes[box_id]], 'start_frame': frame_id, 'end_frame': None, 'missing_streak': 0})
+                data['tracks'].append({'active': True, 'state': new_state, 'track': [frame_boxes[box_id]], 'start_frame': frame_id, 'end_frame': None})
 
         frame_id += 1
 
-    a_stream = time.time()
-    print("Total Generation Time = ", a_stream - b_stream)
     print("Output Phase")
 
     data['tracks'] = list(map(make_serializable, data['tracks']))
+
+    print("Track 0: ", data['tracks'][0])
 
     with open(args.output_folder + '/final_predictions.txt', 'w') as outfile:  
         json.dump(data, outfile)

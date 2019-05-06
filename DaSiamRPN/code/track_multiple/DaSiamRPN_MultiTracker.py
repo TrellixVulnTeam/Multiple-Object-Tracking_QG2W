@@ -10,9 +10,18 @@ sys.path.append(os.path.realpath('./code'))
 sys.path.append(os.path.realpath('../JITNet/utils'))
 from stream import VideoInputStream
 from SingleTracker import track_single_instance
+import config
 
-flags_height = 720
-flags_width = 1280
+
+###################
+# PLAN OF ACTION #
+##################
+"""
+For each frame in video:
+    - get_new_bbox_coords(detections[curr_frame])
+    - Start a new track using SingleTracker by also passing it current frame so
+    it knows not to track anything until current frame
+"""
 
 def parse_args():
     # Parse command line arguments
@@ -34,7 +43,7 @@ def get_initial_bbox_coords(detections_path):
 
     for idx in confident_bboxes[0]:
         x1, y1, x2, y2 = boxes[idx][1], boxes[idx][0], boxes[idx][3], boxes[idx][2]
-        first_boxes.append([x1 * flags_width, y1 * flags_height, x2 * flags_width, y2 * flags_height])
+        first_boxes.append([x1 * config.flags_width, y1 * config.flags_height, x2 * config.flags_width, y2 * config.flags_height])
 
     first_boxes = np.array(first_boxes)
     first_boxes = first_boxes.astype(int)
@@ -77,7 +86,7 @@ def main():
     #############################################
     for i in range(len(first_boxes)):
         print("Tracking Instance: ", i)
-        track_output_folder = args.output_folder + str(i)
+        track_output_folder = args.output_folder + "/" + str(i)
         current_track = track_single_instance(args.video_path, int(first_boxes[i][0]), int(first_boxes[i][1]), int(first_boxes[i][2]), int(first_boxes[i][3]), track_output_folder)
         tracks.append(current_track)
     
