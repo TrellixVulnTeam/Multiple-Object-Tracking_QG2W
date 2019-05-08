@@ -11,15 +11,15 @@ import json
 import argparse
 from moviepy.editor import ImageSequenceClip
 
-sys.path.append(os.path.realpath('./src'))
-sys.path.append(os.path.realpath('./datasets'))
+sys.path.append(os.path.realpath('../JITNet/utils'))
+sys.path.append(os.path.realpath('../JITNet/src'))
+sys.path.append(os.path.realpath('../JITNet/datasets'))
 
 import video_distillation
 
 from mask_rcnn_tfrecords import get_dataset, batch_segmentation_masks,\
                                 visualize_masks
-from mask_rcnn_utils import mask_rcnn_get_best_attention_match,\
-                            mask_rcnn_get_best_box_match,\
+from mask_rcnn_utils import mask_rcnn_get_best_box_match,\
                             get_full_resolution_mask
 from mask_rcnn_stream import MaskRCNNMultiStream, MaskRCNNSequenceStream
 from stream import VideoInputStream

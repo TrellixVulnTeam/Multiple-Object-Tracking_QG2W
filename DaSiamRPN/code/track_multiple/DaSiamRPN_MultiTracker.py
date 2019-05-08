@@ -37,7 +37,7 @@ def get_initial_bbox_coords(detections_path):
     detections = np.load(detections_path)[()]
     boxes, _, scores, _ = detections[0]
 
-    conf_thresh = 0.5
+    conf_thresh = 0.92
     confident_bboxes = np.where((scores > conf_thresh) > 0)
     first_boxes = []
 
@@ -66,7 +66,7 @@ def visualize_predictions(video_path, tracks, output_folder):
         track_id = 0
         for track in tracks:
             curr_box = track[frame_id]
-            cv2.rectangle(im, (curr_box[0], curr_box[1]), (curr_box[0] + curr_box[2], curr_box[1] + curr_box[3]), track_colors[track_id], 3)
+            cv2.rectangle(im, (curr_box[0], curr_box[1]), (curr_box[0] + curr_box[2], curr_box[1] + curr_box[3]), track_colors[track_id], 2)
             img_path = output_folder + "/frame_" + str(frame_id).zfill(len(str(s.length))) + "_vis.png"
             cv2.imwrite(img_path, im)
             track_id += 1
@@ -93,14 +93,14 @@ def main():
     tracks = np.array(tracks)
 
 
-    images_folder = args.output_folder + "final_tracks"
+    images_folder = args.output_folder + "/final_tracks"
     visualize_predictions(args.video_path, tracks, images_folder)
 
     #############################################
      ## WRITE FRAME TRACKING OUTPUT TO VIDEO ##
     #############################################
     clip = ImageSequenceClip(images_folder, fps=29.97)
-    clip.write_videofile(args.output_folder + "final_tracks.mp4")
+    clip.write_videofile(args.output_folder + "/final_tracks.mp4")
     return
 
 if __name__=="__main__":

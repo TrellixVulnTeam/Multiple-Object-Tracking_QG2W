@@ -14,15 +14,15 @@ import random
 import json
 from moviepy.editor import ImageSequenceClip
 
-sys.path.append(os.path.realpath('./src'))
-sys.path.append(os.path.realpath('./datasets'))
+sys.path.append(os.path.realpath('../JITNet/utils'))
+sys.path.append(os.path.realpath('../JITNet/src'))
+sys.path.append(os.path.realpath('../JITNet/datasets'))
 
 import video_distillation
 
 from mask_rcnn_tfrecords import get_dataset, batch_segmentation_masks,\
                                 visualize_masks
-from mask_rcnn_utils import mask_rcnn_get_best_attention_match,\
-                            mask_rcnn_get_best_box_match,\
+from mask_rcnn_utils import mask_rcnn_get_best_box_match,\
                             get_full_resolution_mask
 from mask_rcnn_stream import MaskRCNNMultiStream, MaskRCNNSequenceStream
 from stream import VideoInputStream
@@ -96,7 +96,7 @@ def main(_):
     track_id = 0
     anomaly_id = 0
 
-    pick_threshold = 0.8
+    pick_threshold = 0.92
     area_threshold = 0.05 * FLAGS.height * 0.05 * FLAGS.width
 
     discrepancy = False
@@ -110,6 +110,9 @@ def main(_):
                                     frame_id in input_streams:
         if curr_frame > FLAGS.max_frames:
             break
+
+        if curr_frame % 500 == 0:
+            print("Reached Frame: ", curr_frame)
 
         if curr_frame not in tracked_detections:
             tracked_detections[curr_frame] = []
@@ -149,10 +152,12 @@ def main(_):
 
             # Anomaly: End track if match not found in current frame
             if picked_idx < 0:
+                # print('Lost Track', tid)
                 assert(tid not in tracks)
                 tracks[tid] = active_tracks[tid]
                 active_tracks.pop(tid)
             else:
+                # print('Tracking', tid)
                 # Track collision ??
                 if picked_idx in tracked_detections[curr_frame]:
                     assert(tid not in tracks)
@@ -183,6 +188,7 @@ def main(_):
             tracked_detections[curr_frame].append(uidx)
             track_id = track_id + 1
             active_tracks[track_id] = []
+            # print('Starting New Track', track_id)
             active_tracks[track_id].append(track_info)
 
         curr_frame = curr_frame + 1
